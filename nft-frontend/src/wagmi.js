@@ -9,4 +9,5 @@ export const config = getDefaultConfig({
   transports: {
     [sepolia.id]: http('https://rpc.sepolia.org'),
   },
+  reconnectOnMount: false,
 });

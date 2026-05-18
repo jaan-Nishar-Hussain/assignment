@@ -14,6 +14,22 @@ const initContract = (signer) => {
   return new ethers.Contract(CONTRACT_ADDRESS, NFTMarketABI.abi, signer);
 };
 
+/**
+ * Converts a wagmi WalletClient into an ethers.js Signer
+ * WITHOUT touching window.ethereum — this prevents the MetaMask
+ * popup from being triggered on page load.
+ */
+function walletClientToSigner(walletClient) {
+  const { account, chain, transport } = walletClient;
+  const network = {
+    chainId: chain.id,
+    name: chain.name,
+    ensAddress: chain.contracts?.ensRegistry?.address,
+  };
+  const provider = new ethers.BrowserProvider(transport, network);
+  return provider.getSigner(account.address);
+}
+
 export const WalletProvider = ({ children }) => {
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -23,7 +39,8 @@ export const WalletProvider = ({ children }) => {
   const [contract, setContract] = useState(null);
   const [error, setError] = useState("");
 
-  // When wagmi detects a connected wallet, bridge to ethers.js for contract interactions
+  // Bridge wagmi's walletClient → ethers signer only after user has connected.
+  // We avoid window.ethereum entirely to prevent automatic MetaMask popups.
   const initEthers = useCallback(async () => {
     if (!isConnected || !walletClient) {
       setProvider(null);
@@ -33,9 +50,9 @@ export const WalletProvider = ({ children }) => {
     }
 
     try {
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
-      const signerInstance = await browserProvider.getSigner();
-      setProvider(browserProvider);
+      const signerInstance = await walletClientToSigner(walletClient);
+      const providerInstance = signerInstance.provider;
+      setProvider(providerInstance);
       setSigner(signerInstance);
       setContract(initContract(signerInstance));
       setError("");
@@ -57,7 +74,6 @@ export const WalletProvider = ({ children }) => {
         signer,
         contract,
         error,
-        // connectWallet and disconnectWallet are now handled by RainbowKit's ConnectButton
         connectWallet: () => {},
         disconnectWallet: () => {},
         switchNetwork: () => {},
