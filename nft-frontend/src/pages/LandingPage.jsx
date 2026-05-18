@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Search, ShoppingBag, Pause, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useWallet } from "../context/WalletContext";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const dropdownMenus = {
   Explore: {
@@ -193,13 +194,25 @@ export default function LandingPage() {
               Mint, collect,<br />and trade NFTs.
             </h1>
             <div className="flex items-center gap-4">
-              <Link
-                to={account ? "/mint" : "#"}
-                onClick={(e) => { if (!account) e.preventDefault(); }}
-                className="inline-flex items-center justify-center rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white px-5 h-11 text-[17px] font-normal transition-colors"
-              >
-                {account ? "Start Minting" : "Connect to Mint"}
-              </Link>
+              {account ? (
+                <Link
+                  to="/mint"
+                  className="inline-flex items-center justify-center rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white px-5 h-11 text-[17px] font-normal transition-colors"
+                >
+                  Start Minting
+                </Link>
+              ) : (
+                <ConnectButton.Custom>
+                  {({ openConnectModal }) => (
+                    <button
+                      onClick={openConnectModal}
+                      className="inline-flex items-center justify-center rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white px-5 h-11 text-[17px] font-normal transition-colors cursor-pointer"
+                    >
+                      Connect to Mint
+                    </button>
+                  )}
+                </ConnectButton.Custom>
+              )}
               <Link
                 to="/explore"
                 className="inline-flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-[#1d1d1f] px-5 h-11 text-[17px] font-normal transition-colors border border-black/5"
