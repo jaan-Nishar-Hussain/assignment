@@ -141,14 +141,14 @@ export default function LandingPage() {
           }}
           onMouseLeave={handleMouseLeave}
         >
-          {activeDropdown && dropdownMenus[activeDropdown] && (
+          {activeDropdown && dropdownMenus[activeDropdown]?.sections && (
             <div className="mx-auto max-w-[980px] px-8 py-12">
               <div className="grid grid-cols-3 gap-16">
                 {dropdownMenus[activeDropdown].sections.map((section, idx) => (
                   <div key={idx}>
-                    <h3 className="text-xs font-semibold text-[#6e6e73] mb-3">{section.title}</h3>
+                    <h3 className="text-xs font-semibold text-[#6e6e73] mb-3">{section?.title}</h3>
                     <ul className="space-y-2.5">
-                      {section.items.map((item, itemIdx) => (
+                      {section?.items?.map((item, itemIdx) => (
                         <li key={itemIdx}>
                           <a
                             href="#"
