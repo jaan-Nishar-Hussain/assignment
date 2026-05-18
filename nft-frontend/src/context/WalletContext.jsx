@@ -149,8 +149,17 @@ export const WalletProvider = ({ children }) => {
       return;
     }
     try {
+      // Use eth_accounts (silent) instead of eth_requestAccounts (prompts MetaMask)
+      const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      if (!accounts || accounts.length === 0) {
+        // No connected account — clear saved state, don't prompt
+        localStorage.removeItem(STORAGE_KEY);
+        setAccount("");
+        setSigner(null);
+        setContract(null);
+        return;
+      }
       const browserProvider = new ethers.BrowserProvider(window.ethereum);
-      await browserProvider.send("eth_requestAccounts", []);
       const signerInstance = await browserProvider.getSigner();
       const actualAddress = await signerInstance.getAddress();
       setProvider(browserProvider);
